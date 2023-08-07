@@ -20,9 +20,9 @@
     wr45d6-vgJHLXDPmZ7tWUq2TpqeRrzrxr9_GL68cXz12PJgO2gBi4h6bZzQivpN6PMAW3VTCHvJJ17TZbkMgAb
     ca-app-pub-8225893138914109~4811158454
     打点    tffwjz301r7k
-    inter	05229c8fb4ee2cc2								
-    reward	cd638f69de4647a1								
-    banner	da904abb04da7694								
+    MaxInterstitialAd	05229c8fb4ee2cc2								
+    MaxRewardedAd	cd638f69de4647a1								
+    MaxAdView	da904abb04da7694								
 6.应用名：
     英文+中文：Sort badminton - ball puzzle
     日文：バドミントンの並べ替え - ボールパズル

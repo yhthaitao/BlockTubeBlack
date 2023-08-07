@@ -199,8 +199,8 @@ class NativeCall {
     /** 打点 回传计数 */
     public sTsEvent() {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
-        Common.log(' cocosToJava cocos method: sTsEvent() ');
         let count = DataManager.updateS2SCount();
+        Common.log(' cocosToJava cocos method: sTsEvent() count: ', count);
         let methodName = "reportInstall2";
         let methodSignature = "(Ljava/lang/String;)V";
         jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, String(count));

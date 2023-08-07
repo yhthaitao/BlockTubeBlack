@@ -168,7 +168,7 @@ class DataManager {
                 this.langCur = LangFile.kr;
                 break;
             default:
-                this.langCur = language;
+                this.langCur = LangFile.en;
                 break;
         }
         Common.log(' 初始化语言：', this.langCur);
