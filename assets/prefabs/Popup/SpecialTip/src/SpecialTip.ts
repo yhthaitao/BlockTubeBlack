@@ -60,6 +60,8 @@ export default class SpecialTip extends PopupBase {
     }
 
     eventBtnSkip() {
+        if (this.btnSkip.opacity != 255) return;
+        
         kit.Audio.playEffect(CConst.sound_path_click);
         this.isSpecial = false;
         kit.Popup.hide();

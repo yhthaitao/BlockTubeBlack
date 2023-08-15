@@ -79,6 +79,8 @@ export default class PopupBase<Options = any> extends cc.Component {
                 this.finishCallback && this.finishCallback(suspended);
                 // Done
                 res();
+
+                this.node.destroy();
             }).start();
         });
     }

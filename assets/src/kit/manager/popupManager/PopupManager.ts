@@ -315,26 +315,26 @@ export default class PopupManager {
      */
     public static load(path: string): Promise<cc.Prefab> {
         return new Promise(async(res) => {
-            const prefabMap = this._prefabCache;
-            // 先看下缓存里有没有，避免重复加载
-            if (prefabMap.has(path)) {
-                const prefab = prefabMap.get(path);
-                // 缓存是否有效
-                if (cc.isValid(prefab)) {
-                    res(prefab);
-                    return;
-                } else {
-                    // 删除无效引用
-                    prefabMap.delete(path);
-                }
-            }
+            // const prefabMap = this._prefabCache;
+            // // 先看下缓存里有没有，避免重复加载
+            // if (prefabMap.has(path)) {
+            //     const prefab = prefabMap.get(path);
+            //     // 缓存是否有效
+            //     if (cc.isValid(prefab)) {
+            //         res(prefab);
+            //         return;
+            //     } else {
+            //         // 删除无效引用
+            //         prefabMap.delete(path);
+            //     }
+            // }
             // 动态加载
             let prefab = await kit.Resources.loadRes('prefabs', path, cc.Prefab);
             if (prefab) {
-                // 缓存预制体
-                prefabMap.set(path, prefab);
-                // 增加引用计数
-                prefab.addRef();
+                // // 缓存预制体
+                // prefabMap.set(path, prefab);
+                // // 增加引用计数
+                // prefab.addRef();
                 res(prefab);
             }
         });

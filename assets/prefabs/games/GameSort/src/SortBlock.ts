@@ -1,8 +1,9 @@
-import { kit } from "../../../../src/kit/kit";
+import {kit} from "../../../../src/kit/kit";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
+import SortTube from "./SortTube";
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class SortBlock extends cc.Component {
 
@@ -28,8 +29,7 @@ export default class SortBlock extends cc.Component {
         let length = this.textures.length;
         if (this.number < 1) {
             this.number = 1;
-        }
-        else if (this.number > length) {
+        } else if (this.number > length) {
             this.number = length;
         }
         this.nodeIcon.getComponent(cc.Sprite).spriteFrame = this.textures[this.number - 1];
@@ -49,7 +49,7 @@ export default class SortBlock extends cc.Component {
     hideCover() {
         this.isCover = false;
         this.nodeCover.opacity = 255;
-        cc.tween(this.nodeCover).to(0.383, { opacity: 0 }, cc.easeSineInOut()).start();
+        cc.tween(this.nodeCover).to(0.383, {opacity: 0}, cc.easeSineInOut()).start();
     };
 
     /** 移动 */
@@ -66,7 +66,7 @@ export default class SortBlock extends cc.Component {
         let timeFinish = Common.getMoveTime(objMove.p3_start, objMove.p3_finish, this.baseTime, this.baseDis);
         return new Promise(res => {
             let isDelay = objMove.isLast && objMove.moveNum > 1;
-            cc.tween(this.node).delay(isDelay ? 0.25 : 0).to(timeStart, { position: objMove.p1_finish }, cc.easeSineOut()).call(() => {
+            cc.tween(this.node).delay(isDelay ? 0.25 : 0).to(timeStart, {position: objMove.p1_finish}, cc.easeSineOut()).call(() => {
                 this.node.parent = nodeGame;
                 this.node.scale = scaleTube;
                 this.node.position = objMove.p2_start;
@@ -74,14 +74,14 @@ export default class SortBlock extends cc.Component {
                 res();
             }).parallel(
                 cc.tween().bezierTo(timeBezier, objBesizr.p1, objBesizr.p2, objBesizr.pTo),
-                cc.tween().to(timeRotate1, { angle: dirBesizr * 180 }).to(timeRotate2, { angle: dirBesizr * lastRotate }),
+                cc.tween().to(timeRotate1, {angle: dirBesizr * 180}).to(timeRotate2, {angle: dirBesizr * lastRotate}),
             ).call(() => {
                 this.node.parent = newTube.getComponent('SortTube').nodeMain;
                 this.node.scale = scaleBlock;
                 this.node.angle = 0;
                 this.node.position = objMove.p3_start;
                 this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
-            }).to(timeFinish, { position: objMove.p3_finish }, cc.easeSineInOut()).call(() => {
+            }).to(timeFinish, {position: objMove.p3_finish}, cc.easeSineInOut()).call(() => {
                 this.node.angle = 0;
                 oldTube.zIndex = 0;
                 newTube.zIndex = 0;
@@ -106,24 +106,24 @@ export default class SortBlock extends cc.Component {
         return new Promise(res => {
             let isDelay = objMove.isLast && objMove.moveNum > 1;
             this.node.angle = 180;
-            cc.tween(this.node).delay(isDelay ? 0.25 : 0).to(time1* 1.5, { position: objMove.p1_finish }, cc.easeSineInOut()).call(() => {
+            cc.tween(this.node).delay(isDelay ? 0.25 : 0).to(time1 * 1.5, {position: objMove.p1_finish}, cc.easeSineInOut()).call(() => {
                 this.node.parent = nodeGame;
                 this.node.scale = scaleTube;
                 this.node.angle = lastRotate;
                 this.node.position = objMove.p2_start;
                 kit.Audio.playEffect(objMove.isLast ? CConst.sound_path_ballLong : CConst.sound_path_ballSort);
                 res();
-            }).to(time2 * 2, { position: objMove.p2_finish }, cc.easeSineOut()).call(() => {
+            }).to(time2 * 2, {position: objMove.p2_finish}, cc.easeSineOut()).call(() => {
                 this.node.parent = newTube.getComponent('SortTube').nodeMain;
                 this.node.scale = scaleBlock;
                 this.node.angle = 0;
                 this.node.position = objMove.p3_start;
                 this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
-            }).to(timeFinish * 2, { position: objMove.p3_finish }, cc.easeSineInOut()).call(() => {
+            }).to(timeFinish * 2, {position: objMove.p3_finish}, cc.easeSineInOut()).call(() => {
                 this.node.angle = 0;
                 oldTube.zIndex = 0;
                 newTube.zIndex = 0;
-            }).to(0.15, {angle: -5}).to(0.15, {angle: 5}).to(0.15, {angle: -5}).to(0.15, {angle: 0}).call(()=>{
+            }).to(0.15, {angle: -5}).to(0.15, {angle: 5}).to(0.15, {angle: -5}).to(0.15, {angle: 0}).call(() => {
                 objMove.callback && objMove.callback();
             }).start();
         });

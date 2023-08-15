@@ -1,8 +1,8 @@
-import { kit } from "../../../../src/kit/kit";
+import {kit} from "../../../../src/kit/kit";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class SortTube extends cc.Component {
 
@@ -13,6 +13,7 @@ export default class SortTube extends cc.Component {
     dis: number = 70;
     heightTop: number = 190;
     yParticle: number = -10;
+    isMovingTube: boolean = false;
 
     init(blockNum: number) {
         this.particle.opacity = 0;
@@ -27,12 +28,13 @@ export default class SortTube extends cc.Component {
             let isEnough = this.checkIsEnough(scriptMain.dataObj.blockTotal);
             if (isEnough) {
                 Common.log(' 瓶子已满 name: ', this.node.name);
+            } else {
+                console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
+                if (!this.isMovingTube) {
+                    scriptMain.eventTouchTube(this.node);
+                }
             }
-            else{
-                scriptMain.eventTouchTube(this.node);
-            }
-        }
-        else {
+        } else {
             Common.log(' 异常 找不到脚本 scriptMain ');
             return;
         }
@@ -60,14 +62,13 @@ export default class SortTube extends cc.Component {
                 //     res(true);
                 // }).start();
                 res(true);
-            }
-            else {
+            } else {
                 res(false);
             }
         });
     };
 
-    checkIsEnough(blocksTotal){
+    checkIsEnough(blocksTotal) {
         // 第一个条件 4个小动物
         let isTubeEnough = this.nodeMain.childrenCount == blocksTotal;
         if (isTubeEnough) {
@@ -110,8 +111,7 @@ export default class SortTube extends cc.Component {
         let length = blocks.length;
         if (length > 0) {
             block = blocks[blocks.length - 1];
-        }
-        else {
+        } else {
             block = null;
         }
         return block;
@@ -127,6 +127,7 @@ export default class SortTube extends cc.Component {
     };
 
     hideBlockTopCover() {
+        // console.log("===hideBlockTopCover===", this.node.name)
         let blockTop = this.getBlockTop();
         if (blockTop) {
             let scriptBlock = blockTop.getComponent('SortBlock');
