@@ -53,19 +53,26 @@ export default class SortBlock extends cc.Component {
     };
 
     /** 移动 */
-    fly(objMove: any, oldTube: cc.Node, newTube: cc.Node, nodeGame: cc.Node): Promise<void> {
+    fly(objMove: any, oldTube: cc.Node, newTube: cc.Node, nodeGame: cc.Node, adFunc: any): Promise<void> {
         let timeStart = Common.getMoveTime(objMove.p1_start, objMove.p1_finish, this.baseTime, this.baseDis);
+        if (timeStart > 0.12) timeStart = 0.12
+        // console.log("====timeStart===", timeStart)
         let objBesizr = Common.getBezierObj(objMove.p2_start, objMove.p2_finish, !objMove.isLast);
-        let timeBezier = Common.getBezierTime(objBesizr, this.baseTime * 0.7, this.baseDis);
+        let timeBezier = Common.getBezierTime(objBesizr, this.baseTime * 0.6, this.baseDis);
+        // console.log("====timeBezier===", timeBezier)
         let timeRotate1 = 0;
         let timeRotate2 = timeBezier - timeRotate1;
         let lastRotate = 360;
         let dirBesizr = objBesizr.p1.x > objBesizr.p2.x ? 1 : -1;
         let scaleTube = oldTube.scale;
         let scaleBlock = this.node.scale;
-        let timeFinish = Common.getMoveTime(objMove.p3_start, objMove.p3_finish, this.baseTime, this.baseDis);
+        // let timeFinish = Common.getMoveTime(objMove.p3_start, objMove.p3_finish, this.baseTime, this.baseDis);
+        let timeFinish = 0.08
+        // console.log("====timeFinish===", timeFinish)
         return new Promise(res => {
             let isDelay = objMove.isLast && objMove.moveNum > 1;
+            // console.log("====isDelay===", isDelay ? 0.25 : 0)
+            // console.log("====飞行总计===", timeFinish + timeBezier + (isDelay ? 0.25 : 0))
             cc.tween(this.node).delay(isDelay ? 0.25 : 0).to(timeStart, {position: objMove.p1_finish}, cc.easeSineOut()).call(() => {
                 this.node.parent = nodeGame;
                 this.node.scale = scaleTube;
@@ -81,10 +88,14 @@ export default class SortBlock extends cc.Component {
                 this.node.angle = 0;
                 this.node.position = objMove.p3_start;
                 this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
+            }).call(() => {
+                newTube.getComponent('SortTube').isPutting = true;
+                if (typeof adFunc == "function" && cc.isValid(adFunc)) adFunc();
             }).to(timeFinish, {position: objMove.p3_finish}, cc.easeSineInOut()).call(() => {
                 this.node.angle = 0;
                 oldTube.zIndex = 0;
                 newTube.zIndex = 0;
+                // newTube.getComponent('SortTube').zIndexBlocks();
                 objMove.callback && objMove.callback();
             }).start();
         });

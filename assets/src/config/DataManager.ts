@@ -120,7 +120,13 @@ class DataManager {
     public async initData(nodeAni: cc.Node) {
         let _data = JSON.parse(cc.sys.localStorage.getItem('gameData'));
         if (_data) {
-            this.data = Common.clone(_data);
+            // this.data = Common.clone(_data);
+            let data = Common.clone(_data);
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    this.data[key] = data[key];
+                }
+            }
         }
         else {
             cc.sys.localStorage.setItem('gameData', JSON.stringify(_data));
@@ -184,7 +190,7 @@ class DataManager {
     /**
      * 存储数据
      * @param isSaveCloud 是否存储到云端
-     * @returns 
+     * @returns
      */
     public setData(isSaveCloud = false) {
         let dataString = JSON.stringify(this.data);
@@ -199,13 +205,13 @@ class DataManager {
         if (this.data.adsRemove) {
             return false;
         }
-        return this.data.sortData.level > this.adStartLevel;
+        return this.data.sortData.level > 3;
     }
 
     /**
      * 检测插屏是否开启(针对游戏结束自动弹出的广告)
-     * @param levelNow 检测时的关卡 
-     * @returns 
+     * @param levelNow 检测时的关卡
+     * @returns
      */
     public checkIsPlayAdvert(levelNow: number) {
         let levelLimit = this.adStartLevel + 1;
@@ -223,25 +229,26 @@ class DataManager {
         let levelRecord = this.data.adRecord.level;
         let levelLast = levelNow - levelRecord;
         Common.log(' 检测 时间 timeLast: ', timeLast, '; timeNow: ', timeNow, '; timeRecord: ', timeRecord);
-        if (levelNow > 20) {
+        if (levelNow > 20) {//20
             return timeLast >= 30;
         }
         else{
             Common.log(' 检测 关卡 levelLast: ', levelLast, '; levelNow: ', levelNow, '; levelRecord: ', levelRecord);
             return timeLast >= 90 || levelLast >= 3;
+            // return timeLast >= 60;
         }
     };
 
     /**
      * 播放奖励视频
-     * @param funcA 
-     * @param funcB 
+     * @param funcA
+     * @param funcB
      * @returns
      */
     public playVideo(funcA: Function, funcB: Function): boolean {
         let isReady = NativeCall.videoCheck();
         if (isReady) {
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
             this.adAnimPlay(NativeCall.videoShow.bind(NativeCall, funcA, funcB));
         }
         return isReady;
@@ -249,14 +256,14 @@ class DataManager {
 
     /**
      * 播放广告视频
-     * @param funcA 
-     * @param funcB 
-     * @returns 
+     * @param funcA
+     * @param funcB
+     * @returns
      */
     public playAdvert(funcA: Function, funcB: Function): boolean {
         let isReady = NativeCall.advertCheck();
         if (isReady) {
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
             this.adAnimPlay(NativeCall.advertShow.bind(NativeCall, funcA, funcB));
         }
         return isReady;
@@ -325,8 +332,8 @@ class DataManager {
 
     /**
      * 加载resource资源
-     * @param path 
-     * @returns 
+     * @param path
+     * @returns
      */
     public loadResLoacl(path): Promise<any> {
         return new Promise((resolve) => {

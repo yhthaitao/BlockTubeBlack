@@ -1,6 +1,8 @@
 import {kit} from "../../../../src/kit/kit";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
+import SortBlock from "./SortBlock";
+import GameSort from "./GameSort";
 
 const {ccclass, property} = cc._decorator;
 @ccclass
@@ -13,10 +15,13 @@ export default class SortTube extends cc.Component {
     dis: number = 70;
     heightTop: number = 190;
     yParticle: number = -10;
-    isMovingTube: boolean = false;
+    isMovingTube: boolean = false;//瓶子是否正在移动
+    isPutting: boolean = false;//瓶子是否正在放入羽毛球
 
     init(blockNum: number) {
         this.particle.opacity = 0;
+        this.isMovingTube = false;//瓶子是否正在移动
+        this.isPutting = false;
         this.particle.y = this.yParticle + this.dis * (blockNum - 1);
         this.nodeTop.height = this.heightTop + this.dis * (blockNum - 1);
         this.clearBlocks();
@@ -117,6 +122,28 @@ export default class SortTube extends cc.Component {
         return block;
     };
 
+    getCoverBlockTop() {
+        let block: cc.Node;
+        let covers = []
+        let blocks = Common.getArrByPosY(this.nodeMain);
+        let length = blocks.length;
+        if (length > 0) {
+            block = blocks[blocks.length - 1];
+            let blockScript: SortBlock = block.getComponent(SortBlock);
+            covers = [block]
+
+            for (let i = blocks.length - 1; i >= 0; i--) {
+                if (i != blocks.length - 1) {
+                    let newScript: SortBlock = blocks[i].getComponent(SortBlock);
+                    if (blockScript.number == newScript.number) {
+                        covers.push(blocks[i])
+                    } else break;
+                }
+            }
+        }
+        return covers;
+    };
+
     initCover() {
         let blocks = Common.getArrByPosY(this.nodeMain);
         for (let index = 0, length = blocks.length; index < length; index++) {
@@ -128,12 +155,30 @@ export default class SortTube extends cc.Component {
 
     hideBlockTopCover() {
         // console.log("===hideBlockTopCover===", this.node.name)
-        let blockTop = this.getBlockTop();
-        if (blockTop) {
-            let scriptBlock = blockTop.getComponent('SortBlock');
-            if (scriptBlock.isCover) {
-                scriptBlock.hideCover();
+        let blockTop = this.getCoverBlockTop();
+        // console.log("===blockTop===", blockTop)
+        if (blockTop.length > 0) {
+            for (let i = 0; i < blockTop.length; i++) {
+                let scriptBlock = blockTop[i].getComponent('SortBlock');
+                if (scriptBlock.isCover) {
+                    scriptBlock.hideCover();
+                }
             }
         }
+    };
+
+    zIndexBlocks() {
+        // let scriptMain = this.getScriptMain();
+        // for (let index = 0; index < this.nodeMain.childrenCount; index++) { //3210
+        //     // this.nodeMain.children[index].zIndex = this.nodeMain.childrenCount - index - 1;
+        //     // this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * index;
+        //     this.nodeMain.children[index].zIndex = index;
+        //     this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * (this.nodeMain.childrenCount - index - 1);
+        //     // let yGoal = this.block_y.start + this.block_y.dis * (oldBlockNum - 1);
+        //     // this.block_y.start + this.block_y.dis * (index + newTubeScript.nodeMain.childrenCount))
+        //     console.log("======index=====", index, "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
+        //     // block.y = this.block_y.start + this.block_y.dis * (scriptTube.nodeMain.childrenCount - 1);
+        //     // block.zIndex = this.dataObj.blockTotal - scriptTube.nodeMain.childrenCount;
+        // }
     };
 }

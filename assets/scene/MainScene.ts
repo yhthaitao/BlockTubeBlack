@@ -1,22 +1,22 @@
-import { kit } from "./../src/kit/kit";
+import {kit} from "./../src/kit/kit";
 import Common from "../src/config/Common";
 import CConst from "../src/config/CConst";
 import GameDot from "../src/config/GameDot";
 import NativeCall from "../src/config/NativeCall";
-import DataManager, { GameState, LangChars } from "../src/config/DataManager";
+import DataManager, {GameState, LangChars} from "../src/config/DataManager";
 import Loading from "../res/prefab/Loading/src/Loading";
 import MainMenu from "../res/prefab/MainMenu/src/MainMenu";
 
 /** 资源路径（层、弹窗预制体） */
 export const ResPath = {
     // 公用
-    preGameWin: { bundle: 'prefabs', path: './components/GameWin/res/prefab/GameWin' },
-    preNewPlayer: { bundle: 'prefabs', path: './components/NewPlayer/res/prefab/NewPlayer'},
+    preGameWin: {bundle: 'prefabs', path: './components/GameWin/res/prefab/GameWin'},
+    preNewPlayer: {bundle: 'prefabs', path: './components/NewPlayer/res/prefab/NewPlayer'},
     // 游戏
-    preGameSort: { bundle: 'prefabs', path: './games/GameSort/res/prefab/GameSort'},
+    preGameSort: {bundle: 'prefabs', path: './games/GameSort/res/prefab/GameSort'},
 }
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class MainScene extends cc.Component {
 
@@ -53,11 +53,11 @@ export default class MainScene extends cc.Component {
         this.init();
     }
 
-    async init(){
+    async init() {
         await this.initData();
         this.initUI();
         // 应用内评价（启动游戏时调用）
-        let funcEvaluate = ()=>{
+        let funcEvaluate = () => {
             let _data = DataManager.data;
             if (_data.isAllreadyEvaluate) {
                 return;
@@ -93,7 +93,7 @@ export default class MainScene extends cc.Component {
     };
 
     /** 无视频提示 */
-    async initNoVideo(){
+    async initNoVideo() {
         let tipVideo = await DataManager.getString(LangChars.CannotWatchAds);
         this.noVideoTip.getComponent(cc.Label).string = tipVideo;
         this.noVideoTip.zIndex = CConst.zIndex_noVideo;
@@ -116,7 +116,6 @@ export default class MainScene extends cc.Component {
 
         NativeCall.logEventOne(GameDot.dot_resource_load_success);
         this.isCompleteLoadData = true;
-
         this.enterMenuLayer();
     }
 
@@ -125,14 +124,13 @@ export default class MainScene extends cc.Component {
         if (!this.isCompleteLoading || !this.isCompleteLoadData) {
             return;
         }
-
         // 进入 主菜单
         let funcEnterMenu = async () => {
             this.NodeMainMenu = cc.instantiate(this.preMainMenu);
             this.NodeMainMenu.zIndex = CConst.zIndex_menu;
             this.NodeMainMenu.parent = this.node;
             let script = this.NodeMainMenu.getComponent(MainMenu);
-            script.init(()=>{
+            script.init(() => {
                 DataManager.setGameState(GameState.stateMainMenu);
                 if (DataManager.stateLast == GameState.stateLoading) {
                     this.nodeLoading.active = false;
@@ -142,14 +140,14 @@ export default class MainScene extends cc.Component {
         let script = this.nodeLoading.getComponent(Loading);
         let dataSort = DataManager.data.sortData;
         let isNewPlayer = dataSort.newTip.cur < dataSort.newTip.max;
-        if (isNewPlayer) {
-            Common.log('新手 进入游戏');
-            script.playAniLeave(this.eventBack_enterGameSort.bind(this));
-        }
-        else{
-            Common.log('非新手 进入主界面');
-            script.playAniLeave(funcEnterMenu);
-        }
+        script.playAniLeave(this.eventBack_enterGameSort.bind(this));
+        // if (isNewPlayer) {
+        //     Common.log('新手 进入游戏');
+        //     script.playAniLeave(this.eventBack_enterGameSort.bind(this));
+        // } else {
+        //     Common.log('非新手 进入主界面');
+        //     script.playAniLeave(funcEnterMenu);
+        // }
     }
 
     /** 监听-注册 */
@@ -173,13 +171,12 @@ export default class MainScene extends cc.Component {
         DataManager.setGameState(GameState.stateMainMenu);
         if (DataManager.stateLast == GameState.stateGame) {
             this.nodeGame.active = false;
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
         }
 
         if (this.NodeMainMenu) {
             this.NodeMainMenu.active = true;
-        }
-        else {
+        } else {
             this.NodeMainMenu = cc.instantiate(this.preMainMenu);
             this.NodeMainMenu.zIndex = CConst.zIndex_menu;
             this.NodeMainMenu.parent = this.node;
@@ -193,8 +190,7 @@ export default class MainScene extends cc.Component {
         DataManager.setGameState(GameState.stateGame);
         if (DataManager.stateLast == GameState.stateMainMenu) {
             this.NodeMainMenu.active = false;
-        }
-        else if (DataManager.stateLast == GameState.stateLoading) {
+        } else if (DataManager.stateLast == GameState.stateLoading) {
             this.nodeLoading.active = false;
         }
 
@@ -202,8 +198,7 @@ export default class MainScene extends cc.Component {
             this.nodeGame.active = true;
             let script = this.nodeGame.getComponent('GameSort');
             script.enterLevel(false, true);
-        }
-        else {
+        } else {
             let cfg = ResPath.preGameSort;
             let pre: cc.Prefab = await kit.Resources.loadRes(cfg.bundle, cfg.path, cc.Prefab);
             this.nodeGame = cc.instantiate(pre);
@@ -248,7 +243,7 @@ export default class MainScene extends cc.Component {
         this.noVideoTip.opacity = 255;
         let anim = this.noVideoTip.getComponent(cc.Animation);
         anim.stop();
-        anim.once(cc.Animation.EventType.FINISHED, ()=> {
+        anim.once(cc.Animation.EventType.FINISHED, () => {
             this.noVideoTip.opacity = 0;
         }, this);
         anim.play();
