@@ -138,15 +138,12 @@ class NativeCall {
     /** 广告 检测 */
     public advertCheck(): boolean {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return false;
-        if (DataManager.data.sortData.level > 10) {
-            this.noAdsTime = 30;
-        }
+        if (DataManager.data.sortData.level > 10) this.noAdsTime = 30;
         let adsDays = new Date().valueOf() / 1000;
         if (adsDays - this.lastAdsTime <= this.noAdsTime) {
             Common.log(' cocosToJava cocos method: advertCheck()：adsDays=', adsDays, ",lastAdsTime=", this.lastAdsTime, ",noAdsTime=", this.noAdsTime);
             return false;
         }
-        if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return false;
         let methodName = "interAdReady";
         let methodSignature = "()Z";
         let isReady = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
@@ -184,6 +181,17 @@ class NativeCall {
     public adsTimeTrue() {
         Common.log(' javaToCocos cocos method: adsTimeTrue() ');
         // 打点 插屏广告请求（游戏从后台返回）
+        // this.logEventThree(GameDot.dot_adReq, "inter_backGame", "Interstital");
+        // let isReady = this.advertCheck();
+        // if (isReady) {
+        //     let funcA = () => {
+        //         // 打点 插屏播放成功（游戏从后台返回）
+        //         this.logEventTwo(GameDot.dot_ads_advert_succe_back, String(DataManager.data.sortData.level));
+        //     };
+        //     let funcB = (err: any) => {
+        //     };
+        //     DataManager.playAdvert(funcA, funcB);
+        // }
         let nowTime = new Date().valueOf() / 1000;
         let adsDays = ((new Date().valueOf() - DataManager.data.installtime) / 1000);
         console.log("=====adsTimeTrue=adsDays====", adsDays, "s====", adsDays / 86400, "天===")

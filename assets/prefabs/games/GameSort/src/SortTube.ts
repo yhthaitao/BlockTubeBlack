@@ -17,15 +17,32 @@ export default class SortTube extends cc.Component {
     yParticle: number = -10;
     isMovingTube: boolean = false;//瓶子是否正在移动
     isPutting: boolean = false;//瓶子是否正在放入羽毛球
+    zIndexInit: number = 0;
+    blockNum: number = 4;
 
     init(blockNum: number) {
         this.particle.opacity = 0;
         this.isMovingTube = false;//瓶子是否正在移动
         this.isPutting = false;
+        this.blockNum = blockNum;
         this.particle.y = this.yParticle + this.dis * (blockNum - 1);
         this.nodeTop.height = this.heightTop + this.dis * (blockNum - 1);
         this.clearBlocks();
     };
+
+    addTubeSet(blockNum: number) {
+        this.blockNum = blockNum;
+        this.nodeTop.height = this.heightTop + this.dis * (blockNum - 1);
+    };
+
+    initName(namePre: string, index: number) {
+        this.zIndexInit = index;
+        this.node.name = namePre + index;
+    };
+
+    resetIndex() {
+        this.node.zIndex = this.zIndexInit;
+    }
 
     eventBtn() {
         let scriptMain = this.getScriptMain();
@@ -34,7 +51,7 @@ export default class SortTube extends cc.Component {
             if (isEnough) {
                 Common.log(' 瓶子已满 name: ', this.node.name);
             } else {
-                console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
+                // console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
                 if (!this.isMovingTube) {
                     scriptMain.eventTouchTube(this.node);
                 }
@@ -168,17 +185,25 @@ export default class SortTube extends cc.Component {
     };
 
     zIndexBlocks() {
-        // let scriptMain = this.getScriptMain();
-        // for (let index = 0; index < this.nodeMain.childrenCount; index++) { //3210
-        //     // this.nodeMain.children[index].zIndex = this.nodeMain.childrenCount - index - 1;
-        //     // this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * index;
-        //     this.nodeMain.children[index].zIndex = index;
-        //     this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * (this.nodeMain.childrenCount - index - 1);
-        //     // let yGoal = this.block_y.start + this.block_y.dis * (oldBlockNum - 1);
-        //     // this.block_y.start + this.block_y.dis * (index + newTubeScript.nodeMain.childrenCount))
-        //     console.log("======index=====", index, "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
+        // 羽毛球是 zIndex越大，y越小，因为羽毛球特殊 底层要在最外侧显示，包裹上面的
+        // index = 3、2、1、0  y = 285 215 145 75
+        // childrenCount中，最后一个是最上
+        let scriptMain = this.getScriptMain();
+        // for (let index = this.nodeMain.childrenCount - 1; index >= 0; index--) {
+        //     console.log("==1=zIndexBlocks===blockTotal=====", scriptMain.dataObj.blockTotal, "========childrenCount===", (index + 1), "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
         //     // block.y = this.block_y.start + this.block_y.dis * (scriptTube.nodeMain.childrenCount - 1);
+        //     this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * (this.nodeMain.childrenCount - index - 1);
         //     // block.zIndex = this.dataObj.blockTotal - scriptTube.nodeMain.childrenCount;
+        //     this.nodeMain.children[index].zIndex = index;// 游戏开始时候数childrenCount，所以zIndex是0123
+        //     console.log("==2=zIndexBlocks===blockTotal=====", scriptMain.dataObj.blockTotal, "========childrenCount===", (index + 1), "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
         // }
+        for (let index = this.nodeMain.childrenCount - 1; index >= 0; index--) {
+            // console.log("==1==indexNumber===", this.nodeMain.children[index].getComponent(SortBlock).indexNumber, "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
+            // block.y = this.block_y.start + this.block_y.dis * (scriptTube.nodeMain.childrenCount - 1);
+            this.nodeMain.children[index].y = scriptMain.block_y.start + scriptMain.block_y.dis * (this.nodeMain.children[index].getComponent(SortBlock).indexNumber - 1);
+            // block.zIndex = this.dataObj.blockTotal - scriptTube.nodeMain.childrenCount;
+            this.nodeMain.children[index].zIndex = scriptMain.dataObj.blockTotal - this.nodeMain.children[index].getComponent(SortBlock).indexNumber;// 游戏开始时候数childrenCount，所以zIndex是0123
+            // console.log("==2======indexNumber===", this.nodeMain.children[index].getComponent(SortBlock).indexNumber, "======y=====", this.nodeMain.children[index].y, "========zIndex===", this.nodeMain.children[index].zIndex)
+        }
     };
 }

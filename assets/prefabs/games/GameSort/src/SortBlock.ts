@@ -15,6 +15,7 @@ export default class SortBlock extends cc.Component {
     isCover: boolean = false;
     baseTime = 1;// 基础时间 用于计算移动时间
     baseDis = 2500;// 基础距离 用于计算移动时间
+    indexNumber: number = 0;
 
     width: number = 229 * 0.4;
     height: number = 322 * 0.4;
@@ -59,6 +60,8 @@ export default class SortBlock extends cc.Component {
         // console.log("====timeStart===", timeStart)
         let objBesizr = Common.getBezierObj(objMove.p2_start, objMove.p2_finish, !objMove.isLast);
         let timeBezier = Common.getBezierTime(objBesizr, this.baseTime * 0.6, this.baseDis);
+        let oldTubeScript = oldTube.getComponent(SortTube);
+        let newTubeScript = newTube.getComponent(SortTube);
         // console.log("====timeBezier===", timeBezier)
         let timeRotate1 = 0;
         let timeRotate2 = timeBezier - timeRotate1;
@@ -84,18 +87,22 @@ export default class SortBlock extends cc.Component {
                 cc.tween().to(timeRotate1, {angle: dirBesizr * 180}).to(timeRotate2, {angle: dirBesizr * lastRotate}),
             ).call(() => {
                 this.node.parent = newTube.getComponent('SortTube').nodeMain;
+                this.indexNumber = newTube.getComponent('SortTube').nodeMain.childrenCount;
                 this.node.scale = scaleBlock;
                 this.node.angle = 0;
                 this.node.position = objMove.p3_start;
-                this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
+                // this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount - 1;
+                this.node.zIndex = objMove.blocksNum - this.indexNumber;
             }).call(() => {
                 newTube.getComponent('SortTube').isPutting = true;
                 if (typeof adFunc == "function" && cc.isValid(adFunc)) adFunc();
             }).to(timeFinish, {position: objMove.p3_finish}, cc.easeSineInOut()).call(() => {
                 this.node.angle = 0;
-                oldTube.zIndex = 0;
-                newTube.zIndex = 0;
-                // newTube.getComponent('SortTube').zIndexBlocks();
+                // oldTube.zIndex = 0;
+                // newTube.zIndex = 0;
+                oldTubeScript.resetIndex();
+                newTubeScript.resetIndex();
+                newTube.getComponent('SortTube').zIndexBlocks();
                 objMove.callback && objMove.callback();
             }).start();
         });
@@ -126,14 +133,17 @@ export default class SortBlock extends cc.Component {
                 res();
             }).to(time2 * 2, {position: objMove.p2_finish}, cc.easeSineOut()).call(() => {
                 this.node.parent = newTube.getComponent('SortTube').nodeMain;
+                this.indexNumber = newTube.getComponent('SortTube').nodeMain.childrenCount;
                 this.node.scale = scaleBlock;
                 this.node.angle = 0;
                 this.node.position = objMove.p3_start;
-                this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
+                // this.node.zIndex = objMove.blocksNum - newTube.getComponent('SortTube').nodeMain.childrenCount;
+                this.node.zIndex = objMove.blocksNum - this.indexNumber;
             }).to(timeFinish * 2, {position: objMove.p3_finish}, cc.easeSineInOut()).call(() => {
                 this.node.angle = 0;
                 oldTube.zIndex = 0;
                 newTube.zIndex = 0;
+                newTube.getComponent('SortTube').zIndexBlocks();
             }).to(0.15, {angle: -5}).to(0.15, {angle: 5}).to(0.15, {angle: -5}).to(0.15, {angle: 0}).call(() => {
                 objMove.callback && objMove.callback();
             }).start();
