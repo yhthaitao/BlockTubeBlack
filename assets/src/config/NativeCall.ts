@@ -15,9 +15,10 @@ class NativeCall {
         return this._instance;
     };
 
-    noAdsTime = 60;//广告时间限制
-    lastAdsTime = new Date().valueOf() / 1000;//上一次看广告时间，初始化赋值
-
+    noAdsTime = 60;//广告时间限制，<=10关60秒，10关以后30秒
+    backGameAdsTime = 0;//切出去的时间戳
+    backGameAdsLevel = 0;//切出去时候，成功播放广告的关卡数，同一关只播放一次
+    backGameNoAdsTime = 30;//记录播放间隔时间
     /** 云加载 开始 */
     public cloudLoadStart(): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
@@ -114,7 +115,8 @@ class NativeCall {
         this.funcVideoSuccess && this.funcVideoSuccess();
         DataManager.updateAdCount();
         this.sTsEvent();
-        this.lastAdsTime = new Date().valueOf() / 1000 - this.noAdsTime / 2;
+        DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001) + this.noAdsTime / 2;
+        //激励视频看完后30s不给广告
     }
 
     /** 视频 播放失败 */
@@ -139,9 +141,11 @@ class NativeCall {
     public advertCheck(): boolean {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return false;
         if (DataManager.data.sortData.level > 10) this.noAdsTime = 30;
-        let adsDays = new Date().valueOf() / 1000;
-        if (adsDays - this.lastAdsTime <= this.noAdsTime) {
-            Common.log(' cocosToJava cocos method: advertCheck()：adsDays=', adsDays, ",lastAdsTime=", this.lastAdsTime, ",noAdsTime=", this.noAdsTime);
+        let adsDays = Math.floor(new Date().getTime() * 0.001);
+        let lastAdTime = adsDays - DataManager.data.adRecord.time
+        console.log("======lastAdTime====",lastAdTime, ",noAdsTime=", this.noAdsTime, ",lastAdsTime=", DataManager.data.adRecord.time)
+        if (lastAdTime <= this.noAdsTime) {
+            Common.log(' cocosToJava cocos method: advertCheck()：====noAdsTime时间内不播=lastAdTime=', lastAdTime, ",lastAdsTime=", DataManager.data.adRecord.time, ",noAdsTime=", this.noAdsTime);
             return false;
         }
         let methodName = "interAdReady";
@@ -174,38 +178,52 @@ class NativeCall {
         this.funcAdvertSuccess && this.funcAdvertSuccess();
         DataManager.updateAdCount();
         this.sTsEvent();
-        this.lastAdsTime = new Date().valueOf() / 1000;
+        DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001)
+    }
+
+    /** 切出去后，记录时间 */
+    public outGameSaveTime() {
+        this.backGameAdsTime = Math.floor(new Date().getTime() * 0.001);//切出去后，记录一下当前时间戳
+        console.log("=====outGameSaveTime=backGameAdsTime====", this.backGameAdsTime)
     }
 
     /** 游戏从后台返回的调用 */
     public adsTimeTrue() {
         Common.log(' javaToCocos cocos method: adsTimeTrue() ');
         // 打点 插屏广告请求（游戏从后台返回）
-        // this.logEventThree(GameDot.dot_adReq, "inter_backGame", "Interstital");
-        // let isReady = this.advertCheck();
-        // if (isReady) {
-        //     let funcA = () => {
-        //         // 打点 插屏播放成功（游戏从后台返回）
-        //         this.logEventTwo(GameDot.dot_ads_advert_succe_back, String(DataManager.data.sortData.level));
-        //     };
-        //     let funcB = (err: any) => {
-        //     };
-        //     DataManager.playAdvert(funcA, funcB);
-        // }
-        let nowTime = new Date().valueOf() / 1000;
         let adsDays = ((new Date().valueOf() - DataManager.data.installtime) / 1000);
         console.log("=====adsTimeTrue=adsDays====", adsDays, "s====", adsDays / 86400, "天===")
         if (adsDays <= 86400) {
             //新用户 首日用户
             return
         } else {
-            //超过2日的，就是60s
-            if (nowTime - this.lastAdsTime <= 60) {
+            // if (nowTime - this.lastAdsTime <= 60) {
+            //     return;
+            // } 原来的版本
+            /** 超过2日的,切回游戏给广告 */
+            let timeNow = Math.floor(new Date().getTime() * 0.001);//当前时间戳
+            // 小于10级不播
+            if (DataManager.data.sortData.level <= 10) {
+                console.log("=====adsTimeTrue=小于十级不播====")
+                return;
+            }
+            // 同一关不会出现2次
+            if (this.backGameAdsLevel == DataManager.data.sortData.level) {
+                console.log("=====adsTimeTrue=同等级不播====")
+                return;
+            }
+            console.log("=====adsTimeTrue=backGameNoAdsTime====", this.backGameNoAdsTime, "s=backGameAdsTime===", timeNow - this.backGameAdsTime, "s===")
+            if (timeNow - this.backGameAdsTime < this.backGameNoAdsTime) {
+                console.log("=====adsTimeTrue=时间不够不播====")
                 return;
             }
             this.logEventThree(GameDot.dot_adReq, "inter_backGame", "Interstital");
             let isReady = this.advertCheck();
             if (isReady) {
+                this.backGameAdsLevel = DataManager.data.sortData.level;//成功播放，才记录一下这次播放的关卡，下一次不播放。
+                // 第一次是30s
+                if (this.backGameNoAdsTime == 30) this.backGameNoAdsTime = 60;// 第二次是1分钟
+                else if (this.backGameNoAdsTime == 60) this.backGameNoAdsTime = 600;// 第三次是6分钟
                 let funcA = () => {
                     // 打点 插屏播放成功（游戏从后台返回）
                     this.logEventTwo(GameDot.dot_ads_advert_succe_back, String(DataManager.data.sortData.level));

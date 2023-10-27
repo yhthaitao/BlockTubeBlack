@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "32f53ef0-e1d8-4193-a2d0-7edbd95e0333",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "yanhua_tex": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "af78e2c6-d1f9-4b5f-8874-d6b297d6d137",
+      "importer": "sprite-frame",
       "rawTextureUuid": "32f53ef0-e1d8-4193-a2d0-7edbd95e0333",
       "trimType": "auto",
       "trimThreshold": 1,

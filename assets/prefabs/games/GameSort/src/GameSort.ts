@@ -824,7 +824,7 @@ export default class GameSort extends cc.Component {
         let tubeMax = this.isLevelSpecial ? tubeNum + 1 : 18;
         if (tubeNum < tubeMax) {
             let funcA = () => {
-                if(!this.isLevelSpecial){
+                if (!this.isLevelSpecial) {
                     if (this.dataObj.addTube == null) {
                         this.dataObj.addTube = this.addTube(tubeNum, 1);
                     } else {
@@ -835,7 +835,6 @@ export default class GameSort extends cc.Component {
                         }
                     }
                 } else this.addTube(tubeNum, this.dataObj.blockTotal);
-                
                 this.playAniNotMove();
                 this.saveData();
 

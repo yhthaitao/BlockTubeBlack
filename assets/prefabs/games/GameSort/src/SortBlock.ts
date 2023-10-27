@@ -120,7 +120,8 @@ export default class SortBlock extends cc.Component {
         }
         let scaleTube = oldTube.scale;
         let scaleBlock = this.node.scale;
-        let timeFinish = Common.getMoveTime(objMove.p3_start, objMove.p3_finish, this.baseTime, this.baseDis);
+        // let timeFinish = Common.getMoveTime(objMove.p3_start, objMove.p3_finish, this.baseTime, this.baseDis);
+        let timeFinish = 0.08
         return new Promise(res => {
             let isDelay = objMove.isLast && objMove.moveNum > 1;
             this.node.angle = 180;

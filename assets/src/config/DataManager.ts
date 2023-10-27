@@ -214,6 +214,7 @@ class DataManager {
      * @returns
      */
     public checkIsPlayAdvert(levelNow: number) {
+        // 废弃，没用了，在NativeCall直接写了
         let levelLimit = this.adStartLevel + 1;
         Common.log(' cocos checkIsPlayAds() 插屏检测 levelNow: ', levelNow, '; levelLimit: ', levelLimit);
         if (levelNow < levelLimit) {
